@@ -1,0 +1,31 @@
+# Simple Blog Web App using Flask
+
+This is a basic blog web application built using Flask, a Python web framework. The application allows users to view, create, and manage blog posts.
+
+## Features
+
+- View a list of recent blog posts on the home page.
+- Click on a post title to view its content on a separate page.
+- Create new blog posts by providing a title and content.
+
+1.  Install the required dependencies:
+    pip install Flask Flask-SQLAlchemy
+
+2.  Create the database:
+    python3
+    from app import db
+    db.create_all()
+    exit()
+
+3. Usage: 
+     Start the development server:
+        python app.py
+
+    The app will be accessible at http://127.0.0.1:5000/.
+
+    Visit the homepage to see the list of recent blog posts.
+
+    Click on a post title to view its full content.
+
+    To create a new post, click the "Create New Post" link on the homepage, provide a title and content, and submit the form.
+
