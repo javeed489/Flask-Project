@@ -1,37 +1,29 @@
 from flask import Flask, render_template, request, redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+import sqlite3
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
-db = SQLAlchemy(app)
 
-class Post(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+def get_db_connection():
+    conn = sqlite3.connect('tasks.db')
+    conn.row_factory = sqlite3.Row
+    return conn
 
 @app.route('/')
 def index():
-    posts = Post.query.order_by(Post.date_created.desc()).all()
-    return render_template('index.html', posts=posts)
+    conn = get_db_connection()
+    tasks = conn.execute('SELECT * FROM tasks').fetchall()
+    conn.close()
+    return render_template('index.html', tasks=tasks)
 
-@app.route('/create', methods=['GET', 'POST'])
-def create_post():
-    if request.method == 'POST':
-        title = request.form['title']
-        content = request.form['content']
-        new_post = Post(title=title, content=content)
-        db.session.add(new_post)
-        db.session.commit()
-        return redirect(url_for('index'))
-    return render_template('create_post.html')
-
-@app.route('/post/<int:id>')
-def post(id):
-    post = Post.query.get_or_404(id)
-    return render_template('post.html', post=post)
+@app.route('/add', methods=['POST'])
+def add_task():
+    task = request.form.get('task')
+    if task:
+        conn = get_db_connection()
+        conn.execute('INSERT INTO tasks (task) VALUES (?)', (task,))
+        conn.commit()
+        conn.close()
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True)
